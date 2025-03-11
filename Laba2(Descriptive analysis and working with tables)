@@ -1,0 +1,156 @@
+install.packages("readxl")
+
+library(readxl)
+
+data <- read_excel("Z:/Опрос Домашние животные.xlsx", sheet = "Ответы на форму (1)"); data
+max_values <- apply(data[, -c(1,2)], 2, max); max_values
+min_values <- apply(data[, -c(1,2)], 2, min); min_values
+mean_values <- apply(data[, -c(1,2)], 2, mean); mean_values
+
+preference_high <- colSums(data[, -c(1,2)] > 7); preference_high
+preference_low <- colSums(data[, -c(1,2)] < 3); preference_low
+
+mean_ratings <- colMeans(data[, -c(1,2)])
+sorted_ratings <- sort(mean_ratings, decreasing = TRUE); sorted_ratings
+
+
+new_data <- data
+new_data[sample(1:nrow(new_data), 10), sample(2:ncol(new_data), 5)] <- NA; new_data
+mean_cat_na_rm <- mean(new_data$Кошки, na.rm = TRUE); mean_cat_na_rm 
+data_with_na_filled <- new_data
+for (col in colnames(data_with_na_filled)) {
+  if (is.numeric(data_with_na_filled[[col]])) {
+    data_with_na_filled[[col]][is.na(data_with_na_filled[[col]])] <- mean(data_with_na_filled[[col]], na.rm = TRUE)
+  }
+}
+
+
+
+filtered_data <- data[data$Кошки > 8, ]; filtered_data
+
+
+mean_ratings <- colMeans(data[,-c(1,2)], na.rm = TRUE)
+ratings_df <- data.frame(
+  Animal = names(mean_ratings),
+  Mean_Rating = mean_ratings
+)
+
+
+ratings_df <- ratings_df[order(ratings_df$Mean_Rating), ]
+ratings_df$Animal <- factor(ratings_df$Animal, levels = ratings_df$Animal)
+
+par(mar = c(8, 4, 4, 2))
+barplot(ratings_df$Mean_Rating, names.arg = ratings_df$Animal, col = "steelblue",
+        main = "Средние оценки животных (по возрастанию)",
+        ylab = "Средняя оценка",
+        las = 2)
+
+
+
+#2_2
+
+library(readxl)
+
+data <- read_excel("Z:/Опрос Домашние животные.xlsx", sheet = "Ответы на форму (1)"); data
+
+
+#Дискриптивный анализ
+get_mode <- function(v) {
+  freq_table <- table(v)
+  max_freq <- max(freq_table)
+  as.numeric(names(freq_table[freq_table == max_freq]))
+}
+
+modes <- sapply(data[, 3:12], get_mode); modes
+medians <- sapply(data[, 3:12], median); medians
+means <- sapply(data[, 3:12], mean); means
+maxs <- sapply(data[, 3:12], max); maxs
+mins <- sapply(data[, 3:12], min); mins
+
+#3-4
+sorted_data_fish <- data[order(data$Рыбки, decreasing = TRUE), ]; sorted_data_fish
+
+
+subdataset <- data[data$Игуана > 6, ]; subdataset
+dimensions <- dim(subdataset)
+print(paste("Размерность новой таблицы:", dimensions[1], "строк,", dimensions[2], "столбцов."))
+
+# 5.1. Гистограмма оценок для игуаны
+hist(subdataset$Игуана, breaks = seq(min(subdataset$Игуана), max(subdataset$Игуана), by = 1),
+     col = "steelblue", border = "black",
+     main = "Рис. 1. Гистограмма оценок для игуаны",
+     xlab = "Оценка для игуаны", ylab = "Количество студентов")
+
+# 5.2. Боксплот оценок для игуаны
+boxplot(subdataset$Игуана, col = "lightblue", border = "black",
+        main = "Рис. 2. Боксплот оценок для игуаны",
+        ylab = "Оценка для игуаны")
+
+#5.3 Серединные меры
+modes <- sapply(subdataset[, 3:12], get_mode); modes
+medians <- sapply(subdataset[, 3:12], median); medians
+means <- sapply(subdataset[, 3:12], mean); means
+
+
+
+#Приколюхи с таблицами
+
+new_data <- data.frame(
+  Время = c("10:00:12", "11:00:20", "12:00:51"),
+  Фамилия = c("Иванов", "Петров", "Сидоров"),
+  Кошки = c(4, 5, 2),
+  Собаки = c(5, 4, 3),
+  Черепашки = c(1, 4, 3),
+  Попугаи = c(2, 3, 5),
+  Пауки = c(1, 2, 3),
+  Змеи = c(2, 1, 5),
+  Кролики = c(4, 3, 2),
+  Рыбки = c(3, 2, 4),
+  Медведь = c(5, 2, 1),
+  Игуана = c(3, 5, 4)
+)
+
+
+new_data2 <- data.frame(
+  Время = c("14:45:24", "21:02:42", "16:20:44"),
+  Фамилия = c("Крутой", "Некрутой", "Нормис"),
+  Кошки = c(2, 1, 1),
+  Собаки = c(4, 4, 3),
+  Черепашки = c(3, 4, 3),
+  Попугаи = c(2, 5, 5),
+  Пауки = c(4, 5, 8),
+  Змеи = c(1, 4, 6),
+  Кролики = c(10, 3, 2),
+  Рыбки = c(8, 8, 4),
+  Медведь = c(5, 1, 1),
+  Игуана = c(4, 6, 4)
+)
+
+
+sliyanie <- rbind(new_data, new_data2); sliyanie
+
+new_row <- data.frame(
+  Время = "11:02:42",
+  Фамилия = "Пчел",
+  Кошки = 2,
+  Собаки = 4,
+  Черепашки = 3,
+  Попугаи = 5,
+  Пауки = 8,
+  Змеи = 1,
+  Кролики = 10,
+  Рыбки = 4,
+  Медведь = 1,
+  Игуана = 4
+); new_row
+
+
+new_data <- rbind(new_data, new_row); new_data
+
+new_data <- new_data[, !(names(new_data) %in% c("Пауки"))]; new_data
+
+
+subset_data <- subset(new_data, Собаки > 4 & Кошки > 3); subset_data
+subset_columns <- new_data[, c("Время", "Фамилия", "Собаки", "Кошки")]; subset_columns
+
+
